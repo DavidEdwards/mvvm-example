@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/DavidEdwards/mvvm-example.svg?style=svg&circle-token=2a38dc620a9a31666fadb66ee2cf9f38274962c8)](https://circleci.com/gh/DavidEdwards/mvvm-example)
+
 # Android App architected with MVVM
 
 This project was created as an example of how to use MVVM in Android.
