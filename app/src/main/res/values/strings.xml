@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Rounder</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Rounder</string>
+    <string name="nav_header_subtitle">Dev: knossos@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="games">Games</string>
+    <string name="players">Players</string>
+    <string name="hint_name">Name</string>
+    <string name="choose_player_name">Choose a player name</string>
+    <string name="choose_game_name">Choose game name</string>
+    <string name="delay_x">Delay %1$s</string>
+    <string name="game_x">Game: %1$s</string>
+    <string name="player_x">Player: %1$s</string>
+    <string name="health_x">Health: %1$s</string>
+    <string name="game_x_y">Game: %1$s (#%2$s)</string>
+    <string name="player_x_y">Player: %1$s (#%2$s)</string>
+    <string name="player_status_details">Making changes below can result in ending your turn after going back to the game. Pressing buttons below will change your character by the number shown.</string>
+    <string name="options">Options</string>
+    <string name="spend_turn">Spend turn</string>
+    <string name="refund_turn">Refund turn</string>
+    <string name="damage">Damage</string>
+    <string name="heal">Heal</string>
+    <string name="no_player_in_game">There are currently no players in this game. Add some with the button below.</string>
+    <string name="no_players">There are currently no players. Add some with the button below!</string>
+    <string name="no_games">There are no games. Add one with the button below.</string>
+    <string name="rules">Rules</string>
+    <string name="glossary">Glossary</string>
+    <string name="avatar">Avatar</string>
+    <string name="background_logo">Background logo</string>
+    <string name="remove">Remove</string>
+</resources>

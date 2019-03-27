@@ -1,0 +1,123 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-allopen'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "dae.rounder"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
+        vectorDrawables.useSupportLibrary = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+    packagingOptions {
+        exclude ".readme"
+        exclude "META-INF/LICENSE.txt"
+        exclude "META-INF/NOTICE.txt"
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+        exclude 'META-INF/library_release.kotlin_module'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    // Testing frameworks
+    testImplementation 'org.koin:koin-test:1.0.2'
+    androidTestImplementation 'org.koin:koin-test:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:core:1.1.0'
+    androidTestImplementation "androidx.test.ext:junit:1.1.0"
+    androidTestImplementation 'androidx.test:rules:1.1.1'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.1.1'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    testImplementation 'androidx.arch.core:core-testing:2.0.1'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.0.1'
+    testImplementation 'com.jraska.livedata:testing-ktx:1.0.0'
+    androidTestImplementation 'com.jraska.livedata:testing-ktx:1.0.0'
+
+    // Android Support Libraries
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    // Android Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    implementation 'androidx.room:room-runtime:2.1.0-alpha06'
+    kapt "androidx.room:room-compiler:2.1.0-alpha06"
+    implementation 'androidx.paging:paging-runtime:2.1.0'
+
+    // Chrome Custom Tabs
+    implementation "com.android.support:customtabs:28.0.0"
+
+    // Oneshot LiveData
+    implementation "com.github.hadilq.liveevent:liveevent:1.0.0"
+
+    // KOTLIN
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // KOTLIN DEPENDENCY INJECTION
+    implementation 'org.koin:koin-android:1.0.2'
+    implementation 'org.koin:koin-android-viewmodel:1.0.2'
+
+    // KOTLIN COROUTINES
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1"
+
+    // KOTLIN EXTENSION
+    implementation 'androidx.core:core-ktx:1.0.1'
+
+    // EventBus
+    implementation 'org.greenrobot:eventbus:3.1.1'
+
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    kapt 'com.github.bumptech.glide:compiler:4.8.0'
+
+    // Screen Utils
+    implementation 'com.github.DavidEdwards:AndroidScreenBoilerplate:1.0'
+
+    // Time Libraries
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
+}

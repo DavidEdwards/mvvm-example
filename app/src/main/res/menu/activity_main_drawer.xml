@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_rules"
+            android:icon="@drawable/ic_gavel_black_48dp"
+            android:title="@string/rules" />
+        <item
+            android:id="@+id/nav_glossary"
+            android:icon="@drawable/ic_book_open_page_variant_black_48dp"
+            android:title="@string/glossary" />
+        <item
+            android:id="@+id/nav_players"
+            android:icon="@drawable/ic_account_black_48dp"
+            android:title="@string/players" />
+        <item
+            android:id="@+id/nav_games"
+            android:icon="@drawable/ic_account_details_black_48dp"
+            android:title="@string/games" />
+    </group>
+
+    <!--<menu>-->
+    <!--<item-->
+    <!--android:id="@+id/nav_share"-->
+    <!--android:icon="@drawable/ic_menu_share"-->
+    <!--android:title="@string/menu_share"/>-->
+    <!--<item-->
+    <!--android:id="@+id/nav_send"-->
+    <!--android:icon="@drawable/ic_menu_send"-->
+    <!--android:title="@string/menu_send"/>-->
+    <!--</menu>-->
+    <!--</item>-->
+
+</menu>

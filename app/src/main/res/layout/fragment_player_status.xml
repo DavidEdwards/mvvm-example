@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="dae.rounder.viewmodels.PlayerStatusViewModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="@color/colorPrimary"
+        android:padding="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:id="@+id/game_name"
+            android:text="@{@string/game_x_y(vm.game().displayName, vm.game().id), default=`Game: A Game (#1)`}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/game_name"
+            app:layout_constraintLeft_toLeftOf="parent"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:id="@+id/player_name"
+            android:text="@{@string/player_x_y(vm.player().player.displayName, vm.player().player.id), default=`Player: Tom (#1)`}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/player_name"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="8dp"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:id="@+id/delay"
+            android:text="@{@string/delay_x(vm.player().status.counter), default=`Delay: 0`}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/delay"
+            app:layout_constraintLeft_toLeftOf="parent"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:id="@+id/health"
+            android:text="@{@string/health_x(vm.player().status.health), default=`Health: 100`}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/health"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="8dp"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:id="@+id/options"
+            android:text="@string/options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            app:layout_constraintTop_toBottomOf="@+id/options"
+            app:layout_constraintLeft_toLeftOf="parent"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:id="@+id/details"
+            android:text="@string/player_status_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+
+        <Button
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/details"
+            app:layout_constraintLeft_toLeftOf="parent"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:id="@+id/spend_turn"
+            android:visibility="@{vm.player().status.health > 0 ? View.VISIBLE : View.INVISIBLE}"
+            android:onClick="@{() -> vm.onSpendTurnClicked(vm.game(), vm.player())}"
+            android:text="@string/spend_turn"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_chevron_double_right_black_36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            app:layout_constraintTop_toTopOf="@+id/spend_turn"
+            app:layout_constraintLeft_toRightOf="@+id/spend_turn"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:visibility="@{vm.player().status.health > 0 ? View.VISIBLE : View.INVISIBLE}"
+            android:onClick="@{() -> vm.onRefundTurnClicked(vm.game(), vm.player())}"
+            android:id="@+id/refund_turn"
+            android:drawablePadding="8dp"
+            android:layout_marginStart="8dp"
+            android:drawableStart="@drawable/ic_chevron_double_left_black_36dp"
+            android:text="@string/refund_turn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <Button
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/spend_turn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:onClick="@{() -> vm.onDamageClicked(vm.game(), vm.player())}"
+            android:id="@+id/damage"
+            android:text="@string/damage"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_heart_broken_black_36dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            app:layout_constraintTop_toTopOf="@+id/damage"
+            app:layout_constraintLeft_toRightOf="@+id/damage"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> vm.onHealClicked(vm.game(), vm.player())}"
+            android:id="@+id/heal"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_cards_heart_black_36dp"
+            android:text="@string/heal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <NumberPicker
+            android:id="@+id/numberPicker"
+            android:layout_marginTop="8dp"
+            android:onValueChange="@{(v, old, new) -> vm.onNumberPickerChanged(v, old, new)}"
+            app:layout_constraintTop_toBottomOf="@+id/damage"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+
+        <!--<androidx.recyclerview.widget.RecyclerView-->
+            <!--android:id="@+id/game_list"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="0dp"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--app:layout_constraintLeft_toLeftOf="parent"-->
+            <!--app:layout_constraintRight_toRightOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="parent" />-->
+
+        <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+            <!--android:id="@+id/fab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="bottom|end"-->
+            <!--android:layout_margin="@dimen/fab_margin"-->
+            <!--android:onClick="@{() -> vm.onAddPlayerClicked()}"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--app:layout_constraintRight_toRightOf="parent"-->
+            <!--app:srcCompat="@drawable/ic_account_convert_white_36dp" />-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
