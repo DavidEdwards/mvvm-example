@@ -11,27 +11,31 @@ import dae.rounder.database.entity.Status
 import kotlinx.coroutines.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
+import kotlin.coroutines.CoroutineContext
 
 interface GameRepository {
-    suspend fun new(displayName: String = "Untitled"): Deferred<Game>
-    suspend fun delete(game: Game)
-    suspend fun delete(id: Long)
+    suspend fun new(displayName: String = "Untitled"): Game
+    fun delete(game: Game)
+    fun delete(id: Long)
     fun game(): LiveData<Game?>
     fun games(): LiveData<List<Game>>
     fun players(): LiveData<List<PlayerStatus>>
     fun watchGame(gameId: Long)
-    suspend fun addPlayer(game: Game, vararg players: Player): Deferred<List<PlayerStatus>>
+    suspend fun addPlayer(game: Game, vararg players: Player): List<PlayerStatus>
     fun removePlayer(game: Game, vararg players: Player)
-    suspend fun playerInGame(game: Game, player: Player): Deferred<Boolean>
-    fun spendTurn(gameId: Long, playerId: Long, amount: Int = 1): Deferred<PlayerStatus>
-    fun refundTurn(gameId: Long, playerId: Long, amount: Int = 1): Deferred<PlayerStatus>
-    fun damagePlayer(gameId: Long, playerId: Long, amount: Int = 1): Deferred<PlayerStatus>
-    fun healPlayer(gameId: Long, playerId: Long, amount: Int = 1): Deferred<PlayerStatus>
+    suspend fun playerInGame(game: Game, player: Player): Boolean
+    suspend fun spendTurn(gameId: Long, playerId: Long, amount: Int = 1): PlayerStatus
+    suspend fun refundTurn(gameId: Long, playerId: Long, amount: Int = 1): PlayerStatus
+    suspend fun damagePlayer(gameId: Long, playerId: Long, amount: Int = 1): PlayerStatus
+    suspend fun healPlayer(gameId: Long, playerId: Long, amount: Int = 1): PlayerStatus
     fun getPlayerFromGame(gameId: Long, playerId: Long): LiveData<PlayerStatus?>
     fun advanceGameBy(gameId: Long, turns: Long)
 }
 
-class GameRepositoryImpl: GameRepository, KoinComponent {
+class GameRepositoryImpl: GameRepository, KoinComponent, CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private val db by inject<AppDatabase>()
     private val dao = db.getDatabase().gameDao()
@@ -65,24 +69,21 @@ class GameRepositoryImpl: GameRepository, KoinComponent {
         }
     }
 
-    override suspend fun new(displayName: String): Deferred<Game> {
-        return GlobalScope.async(Dispatchers.IO) {
-//            val dao = db.getDatabase().gameDao()
+    override suspend fun new(displayName: String): Game {
+        return withContext(Dispatchers.IO) {
             val ids = dao.insertAll(Game(displayName))
-            return@async dao.gameByIdNow(ids.first()) ?: throw RuntimeException("Game cannot be null")
+            return@withContext dao.gameByIdNow(ids.first()) ?: throw RuntimeException("Game cannot be null")
         }
     }
 
-    override suspend fun delete(game: Game) {
-        GlobalScope.launch(Dispatchers.IO) {
-//            val dao = db.getDatabase().gameDao()
+    override fun delete(game: Game) {
+        launch(Dispatchers.IO) {
             dao.delete(game)
         }
     }
 
-    override suspend fun delete(id: Long) {
-        GlobalScope.launch(Dispatchers.IO) {
-//            val dao = db.getDatabase().gameDao()
+    override fun delete(id: Long) {
+        launch(Dispatchers.IO) {
             dao.deleteById(id)
         }
     }
@@ -95,8 +96,8 @@ class GameRepositoryImpl: GameRepository, KoinComponent {
         gameIdLiveData.postValue(gameId)
     }
 
-    override suspend fun addPlayer(game: Game, vararg players: Player): Deferred<List<PlayerStatus>> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun addPlayer(game: Game, vararg players: Player): List<PlayerStatus> {
+        return withContext(Dispatchers.IO) {
             val list = ArrayList<PlayerStatus>()
 
             players.forEach { player ->
@@ -108,26 +109,26 @@ class GameRepositoryImpl: GameRepository, KoinComponent {
             }
 
 
-            return@async list
+            return@withContext list
         }
     }
 
     override fun removePlayer(game: Game, vararg players: Player) {
-        GlobalScope.launch(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
             players.forEach { player ->
                 dao.removePlayerFromGame(game.id, player.id)
             }
         }
     }
 
-    override suspend fun playerInGame(game: Game, player: Player): Deferred<Boolean> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun playerInGame(game: Game, player: Player): Boolean {
+        return withContext(Dispatchers.IO) {
             dao.playerInGame(game.id, player.id)
         }
     }
 
-    override fun spendTurn(gameId: Long, playerId: Long, amount: Int): Deferred<PlayerStatus> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun spendTurn(gameId: Long, playerId: Long, amount: Int): PlayerStatus {
+        return withContext(Dispatchers.IO) {
             val playerStatus = dao.getPlayerInGameNow(gameId, playerId)!!
 
             if(playerStatus.status.health > 0) {
@@ -136,12 +137,12 @@ class GameRepositoryImpl: GameRepository, KoinComponent {
                 dao.updateStatus(playerStatus.status)
             }
 
-            return@async playerStatus
+            return@withContext playerStatus
         }
     }
 
-    override fun refundTurn(gameId: Long, playerId: Long, amount: Int): Deferred<PlayerStatus> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun refundTurn(gameId: Long, playerId: Long, amount: Int): PlayerStatus {
+        return withContext(Dispatchers.IO) {
             val playerStatus = dao.getPlayerInGameNow(gameId, playerId)!!
 
             if(playerStatus.status.health > 0) {
@@ -150,31 +151,31 @@ class GameRepositoryImpl: GameRepository, KoinComponent {
                 dao.updateStatus(playerStatus.status)
             }
 
-            return@async playerStatus
+            return@withContext playerStatus
         }
     }
 
-    override fun damagePlayer(gameId: Long, playerId: Long, amount: Int): Deferred<PlayerStatus> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun damagePlayer(gameId: Long, playerId: Long, amount: Int): PlayerStatus {
+        return withContext(Dispatchers.IO) {
             val playerStatus = dao.getPlayerInGameNow(gameId, playerId)!!
 
             playerStatus.status.health = Math.max(0, playerStatus.status.health - amount)
 
             dao.updateStatus(playerStatus.status)
 
-            return@async playerStatus
+            return@withContext playerStatus
         }
     }
 
-    override fun healPlayer(gameId: Long, playerId: Long, amount: Int): Deferred<PlayerStatus> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun healPlayer(gameId: Long, playerId: Long, amount: Int): PlayerStatus {
+        return withContext(Dispatchers.IO) {
             val playerStatus = dao.getPlayerInGameNow(gameId, playerId)!!
 
             playerStatus.status.health = Math.min(100, playerStatus.status.health + amount)
 
             dao.updateStatus(playerStatus.status)
 
-            return@async playerStatus
+            return@withContext playerStatus
         }
     }
 
@@ -183,7 +184,7 @@ class GameRepositoryImpl: GameRepository, KoinComponent {
     }
 
     override fun advanceGameBy(gameId: Long, turns: Long) {
-        GlobalScope.launch(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
             dao.advanceGameBy(gameId, Math.max(0, turns))
         }
     }

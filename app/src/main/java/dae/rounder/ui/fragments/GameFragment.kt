@@ -16,14 +16,15 @@ import dae.rounder.ui.presentation.PlayerStatusListAdapter
 import dae.rounder.utils.Constants
 import dae.rounder.utils.LogUtils
 import dae.rounder.viewmodels.GameViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class GameFragment: Fragment() {
+class GameFragment: Fragment(), CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private lateinit var binding: FragmentGameBinding
     private val gameViewModel by viewModel<GameViewModel>()
@@ -49,7 +50,7 @@ class GameFragment: Fragment() {
             adapter.submitList(list)
 
             if(list.isNotEmpty() && list.first { it.status.health > 0 }.status.counter != 0L) {
-                GlobalScope.launch(Dispatchers.Main) {
+                launch {
                     delay(100)
                     gameViewModel.advanceGameState(gameViewModel.game().value?.id ?: -1)
                 }

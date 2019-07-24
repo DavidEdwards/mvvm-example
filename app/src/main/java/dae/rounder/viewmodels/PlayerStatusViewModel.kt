@@ -2,14 +2,12 @@ package dae.rounder.viewmodels
 
 import android.widget.NumberPicker
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dae.rounder.database.entity.Game
 import dae.rounder.database.entity.Player
 import dae.rounder.database.entity.PlayerStatus
 import dae.rounder.repositories.GameRepository
 import dae.rounder.repositories.PlayerRepository
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class PlayerStatusViewModel(private val gameRepository: GameRepository, private val playerRepository: PlayerRepository): ViewModel() {
@@ -20,26 +18,26 @@ class PlayerStatusViewModel(private val gameRepository: GameRepository, private 
     fun game() = gameRepository.game()
 
     fun onSpendTurnClicked(game: Game, playerStatus: PlayerStatus) {
-        GlobalScope.launch(Dispatchers.Main) {
-            gameRepository.spendTurn(game.id, playerStatus.player.id, amount).join()
+        viewModelScope.launch {
+            gameRepository.spendTurn(game.id, playerStatus.player.id, amount)
         }
     }
 
     fun onRefundTurnClicked(game: Game, playerStatus: PlayerStatus) {
-        GlobalScope.launch(Dispatchers.Main) {
-            gameRepository.refundTurn(game.id, playerStatus.player.id, amount).join()
+        viewModelScope.launch {
+            gameRepository.refundTurn(game.id, playerStatus.player.id, amount)
         }
     }
 
     fun onDamageClicked(game: Game, playerStatus: PlayerStatus) {
-        GlobalScope.launch(Dispatchers.Main) {
-            gameRepository.damagePlayer(game.id, playerStatus.player.id, amount).join()
+        viewModelScope.launch {
+            gameRepository.damagePlayer(game.id, playerStatus.player.id, amount)
         }
     }
 
     fun onHealClicked(game: Game, playerStatus: PlayerStatus) {
-        GlobalScope.launch(Dispatchers.Main) {
-            gameRepository.healPlayer(game.id, playerStatus.player.id, amount).join()
+        viewModelScope.launch {
+            gameRepository.healPlayer(game.id, playerStatus.player.id, amount)
         }
     }
 
@@ -47,15 +45,15 @@ class PlayerStatusViewModel(private val gameRepository: GameRepository, private 
         amount = new
     }
 
-    suspend fun new(displayName: String, avatarPath: String? = null): Deferred<Player> {
+    suspend fun new(displayName: String, avatarPath: String? = null): Player {
         return playerRepository.new(displayName, avatarPath)
     }
 
-    suspend fun delete(player: Player) {
+    fun delete(player: Player) {
         playerRepository.delete(player)
     }
 
-    suspend fun delete(playerId: Long) {
+    fun delete(playerId: Long) {
         playerRepository.delete(playerId)
     }
 

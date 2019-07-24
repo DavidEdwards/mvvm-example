@@ -2,6 +2,7 @@ package dae.rounder.viewmodels
 
 import android.view.View
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.hadilq.liveevent.LiveEvent
 import dae.rounder.database.entity.Game
 import dae.rounder.database.entity.Player
@@ -10,9 +11,7 @@ import dae.rounder.events.OnPlayerStatusClicked
 import dae.rounder.repositories.GameRepository
 import dae.rounder.repositories.PlayerRepository
 import dae.rounder.utils.LogUtils
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 
@@ -28,15 +27,15 @@ class GameViewModel(
     fun uiPickPlayer(): LiveEvent<PlayerPickPair> = uiPickPlayerLiveData
 
     fun onAddPlayerClicked() {
-        GlobalScope.launch(Dispatchers.Main) {
+        viewModelScope.launch {
             val game = game().value!!
-            val list = playerRepository.playersNow().await().toMutableList()
+            val list = playerRepository.playersNow().toMutableList()
             val inGame = arrayListOf<Boolean>()
 
             val it = list.iterator()
             while(it.hasNext()) {
                 val player = it.next()
-                if(gameRepository.playerInGame(game, player).await()) {
+                if(gameRepository.playerInGame(game, player)) {
                     inGame.add(true)
                 } else {
                     inGame.add(false)
@@ -44,9 +43,9 @@ class GameViewModel(
             }
 
             uiPickPlayerLiveData.postValue(PlayerPickPair(list, inGame) { player, enabled ->
-                GlobalScope.launch(Dispatchers.IO) {
+                launch(Dispatchers.IO) {
                     if(enabled) {
-                        gameRepository.addPlayer(game, player).join()
+                        gameRepository.addPlayer(game, player)
                     } else {
                         gameRepository.removePlayer(game, player)
                     }
@@ -60,15 +59,15 @@ class GameViewModel(
         EventBus.getDefault().post(OnPlayerStatusClicked(playerStatus))
     }
 
-    suspend fun new(displayName: String): Deferred<Game> {
+    suspend fun new(displayName: String): Game {
         return gameRepository.new(displayName)
     }
 
-    suspend fun delete(game: Game) {
+    fun delete(game: Game) {
         gameRepository.delete(game)
     }
 
-    suspend fun delete(gameId: Long) {
+    fun delete(gameId: Long) {
         gameRepository.delete(gameId)
     }
 

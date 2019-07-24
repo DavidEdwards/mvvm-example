@@ -12,10 +12,17 @@ import dae.rounder.events.OnTitleChangedEvent
 import dae.rounder.utils.Constants
 import dae.rounder.utils.LogUtils
 import dae.rounder.viewmodels.PlayerStatusViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class PlayerStatusFragment: Fragment() {
+class PlayerStatusFragment: Fragment(), CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private lateinit var binding: FragmentPlayerStatusBinding
     private val playerStatusViewModel by viewModel<PlayerStatusViewModel>()

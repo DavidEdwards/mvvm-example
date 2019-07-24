@@ -17,16 +17,18 @@ import dae.rounder.events.*
 import dae.rounder.ui.fragments.*
 import dae.rounder.utils.Constants
 import dae.rounder.viewmodels.MainViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.koin.android.ext.android.inject
+import kotlin.coroutines.CoroutineContext
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel by inject<MainViewModel>()
@@ -57,8 +59,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         navView.setNavigationItemSelectedListener(this)
 
-        GlobalScope.launch(Dispatchers.Main) {
-            val players = mainViewModel.playersNow().await()
+        launch {
+            val players = mainViewModel.playersNow()
             if(players.isNotEmpty()) {
                 loadGameListFragment()
             } else {

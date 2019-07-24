@@ -9,20 +9,24 @@ import dae.rounder.database.entity.PlayerStatus
 import kotlinx.coroutines.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
+import kotlin.coroutines.CoroutineContext
 
 interface PlayerRepository {
-    suspend fun new(displayName: String, avatarPath: String? = null): Deferred<Player>
-    suspend fun delete(player: Player)
-    suspend fun delete(id: Long)
+    suspend fun new(displayName: String, avatarPath: String? = null): Player
+    fun delete(player: Player)
+    fun delete(id: Long)
     fun players(): LiveData<List<Player>>
-    fun playersNow(): Deferred<List<Player>>
+    suspend fun playersNow(): List<Player>
     fun watchPlayer(playerId: Long)
     fun player(): LiveData<Player?>
     fun watchGame(gameId: Long)
     fun playerStatus(): LiveData<PlayerStatus?>
 }
 
-class PlayerRepositoryImpl: PlayerRepository, KoinComponent {
+class PlayerRepositoryImpl: PlayerRepository, KoinComponent, CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private val db by inject<AppDatabase>()
     private val dao = db.getDatabase().playerDao()
@@ -53,29 +57,29 @@ class PlayerRepositoryImpl: PlayerRepository, KoinComponent {
         }
     }
 
-    override suspend fun new(displayName: String, avatarPath: String?): Deferred<Player> {
-        return GlobalScope.async(Dispatchers.IO) {
+    override suspend fun new(displayName: String, avatarPath: String?): Player {
+        return withContext(Dispatchers.IO) {
             val ids = dao.insertAll(Player(displayName, avatarPath))
-            return@async dao.playerByIdNow(ids.first()) ?: throw RuntimeException("Player cannot be null")
+            return@withContext dao.playerByIdNow(ids.first()) ?: throw RuntimeException("Player cannot be null")
         }
     }
 
-    override suspend fun delete(player: Player) {
-        GlobalScope.launch(Dispatchers.IO) {
+    override fun delete(player: Player) {
+        launch(Dispatchers.IO) {
             dao.delete(player)
         }
     }
 
-    override suspend fun delete(id: Long) {
-        GlobalScope.launch(Dispatchers.IO) {
+    override fun delete(id: Long) {
+        launch(Dispatchers.IO) {
             dao.deleteById(id)
         }
     }
 
     override fun players(): LiveData<List<Player>> = players
 
-    override fun playersNow(): Deferred<List<Player>> {
-        return GlobalScope.async {
+    override suspend fun playersNow(): List<Player> {
+        return withContext(Dispatchers.IO) {
             dao.listNow()
         }
     }

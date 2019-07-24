@@ -16,10 +16,17 @@ import dae.rounder.events.OnTitleChangedEvent
 import dae.rounder.ui.presentation.GameListAdapter
 import dae.rounder.utils.LogUtils
 import dae.rounder.viewmodels.GameListViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import org.greenrobot.eventbus.EventBus
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.coroutines.CoroutineContext
 
-class GameListFragment: Fragment() {
+class GameListFragment: Fragment(), CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private lateinit var binding: FragmentGameListBinding
     private val gameListViewModel by viewModel<GameListViewModel>()
